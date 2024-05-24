@@ -1,0 +1,24 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Sales Order",
+  "enabled": 1,
+  "modified": "2024-05-24 14:08:50.005483",
+  "module": null,
+  "name": "Sales order button",
+  "script": "frappe.listview_settings['Sales Order'] = {\n    button: {\n        show: function(doc) {\n            return true; \n        },\n        get_label: function() {\n            return __('ID'); \n        },\n        get_description: function(doc) {\n            return __('Details of {0}', [doc.name]); \n        },\n        action: function(doc) {\n            var order_id = doc.name;\n            var order_type = doc.order_type;\n            \n            \n            frappe.msgprint({\n                title: __('Sales Order Details'),\n                message: __('ID: {0}<br>Order Type: {1}', [order_id, order_type])\n            });\n        }\n    },\n    add_fields: ['order_type']\n};",
+  "view": "List"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Sales Order",
+  "enabled": 1,
+  "modified": "2024-05-24 14:15:06.195158",
+  "module": null,
+  "name": "Customer in Sales Order",
+  "script": "frappe.ui.form.on('Sales Order', {\n    refresh: function(frm) {\n        frm.add_custom_button(__('Show Customer Details'), function() {\n            var customer_name = frm.doc.customer;\n\n            if (customer_name) {\n                frappe.call({\n                    method: 'frappe.client.get',\n                    args: {\n                        doctype: 'Customer',\n                        name: customer_name\n                    },\n                    callback: function(response) {\n                        if (response.message) {\n                            var customer = response.message;\n                            var customer_details = `\n                                <b>Customer Name:</b> ${customer.customer_name}<br>\n                                <b>Customer Group:</b> ${customer.customer_group}<br>\n                                <b>Territory:</b> ${customer.territory}<br>\n                                <b>Email:</b> ${customer.email_id || 'N/A'}<br>\n                                <b>Phone:</b> ${customer.phone || 'N/A'}\n                            `;\n                            \n                            frappe.msgprint({\n                                title: __('Customer Details'),\n                                message: customer_details,\n                                wide: true\n                            });\n                        } else {\n                            frappe.msgprint(__('No details found for the customer.'));\n                        }\n                    }\n                });\n            } else {\n                frappe.msgprint(__('No customer specified in this Sales Order.'));\n            }\n        });\n    }\n});\n",
+  "view": "Form"
+ }
+]
